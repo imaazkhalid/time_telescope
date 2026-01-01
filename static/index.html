@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Telescope | Look into Earth's Past</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+    
+    <main class="container">
+        <header>
+            <h1>Time Telescope</h1>
+            <p class="subtitle">Calculate the distance required to peer into Earth's history.</p>
+        </header>
+
+        <section class="calculator-card">
+            <div class="input-group">
+                <label for="target-date">Target Date & Time</label>
+                <input type="datetime-local" id="target-date" name="target-date">
+                <p class="hint">When would you like to see?</p>
+            </div>
+
+            <button id="calculate-btn" class="btn-primary">Focus Telescope</button>
+
+            <div id="results" class="results-area hidden">
+                <div class="result-item">
+                    <span class="label">Required Distance</span>
+                    <span class="value" id="ly-value">0.00</span>
+                    <span class="unit">Light Years</span>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">Kilometers</span>
+                        <span class="stat-value" id="km-value">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Miles</span>
+                        <span class="stat-value" id="mi-value">0</span>
+                    </div>
+                </div>
+
+                <div class="explanation">
+                    <p>To see Earth as it was on <span id="display-date">...</span>, you would need to be positioned <span id="display-ly">...</span> light years away, capturing the light that left Earth at that exact moment.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Time Telescope Project. Built with Rust.</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
