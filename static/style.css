@@ -190,6 +190,41 @@ input[type="datetime-local"]:focus {
     border-left: 4px solid var(--accent-color);
 }
 
+.milestones {
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.milestones h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+.milestone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.milestone-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 0.8rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.milestone-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+    transform: scale(1.02);
+}
+
 footer {
     text-align: center;
     margin-top: 4rem;

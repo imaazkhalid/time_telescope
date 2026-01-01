@@ -1,7 +1,7 @@
 use actix_files as fs;
 use actix_web::{
     get, middleware, post,
-    web::{self, Json},
+    web::Json,
     App, HttpResponse, HttpServer, Responder,
 };
 use chrono::{DateTime, Utc};

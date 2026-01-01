@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate(), now.getHours(), now.getMinutes());
     targetDateInput.value = tenYearsAgo.toISOString().slice(0, 16);
 
+    // Milestone buttons
+    document.querySelectorAll('.milestone-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            targetDateInput.value = btn.dataset.date;
+            calculateBtn.click();
+        });
+    });
+
     calculateBtn.addEventListener('click', async () => {
         const targetDate = targetDateInput.value;
         
