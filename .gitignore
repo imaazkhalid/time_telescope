@@ -1,2 +1,7 @@
 /target
-celestial.db
+/celestial.db
+/celestial.db-shm
+/celestial.db-wal
+**/*.rs.bk
+.DS_Store
+.env
