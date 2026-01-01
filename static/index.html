@@ -18,9 +18,42 @@
 
         <section class="calculator-card">
             <div class="input-group">
-                <label for="target-date">Target Date & Time</label>
-                <input type="datetime-local" id="target-date" name="target-date">
-                <p class="hint">When would you like to see?</p>
+                <label>Target Date in History</label>
+                <div class="date-inputs">
+                    <div class="field-group">
+                        <label for="input-year" class="sub-label">Year</label>
+                        <input type="number" id="input-year" placeholder="e.g. 1998 or -3200" required>
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="input-month" class="sub-label">Month</label>
+                        <select id="input-month">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="input-day" class="sub-label">Day</label>
+                        <input type="number" id="input-day" min="1" max="31" value="1">
+                    </div>
+
+                    <div class="field-group">
+                        <label for="input-time" class="sub-label">Time</label>
+                        <input type="time" id="input-time" value="12:00">
+                    </div>
+                </div>
+                <p class="hint">Use negative numbers for BCE years (e.g., -3200).</p>
             </div>
 
             <button id="calculate-btn" class="btn-primary">Focus Telescope</button>
@@ -66,12 +99,12 @@
         <section class="milestones">
             <h3>Historical Milestones</h3>
             <div class="milestone-grid">
-                <button class="milestone-btn" data-date="1969-07-20T20:17">Moon Landing (1969)</button>
-                <button class="milestone-btn" data-date="1989-11-09T18:53">Berlin Wall Falls (1989)</button>
-                <button class="milestone-btn" data-date="2007-01-09T09:00">First iPhone (2007)</button>
-                <button class="milestone-btn" data-date="1945-09-02T09:00">End of WWII (1945)</button>
-                <button class="milestone-btn" data-date="0001-01-01T00:00">Start of CE (1)</button>
-                <button class="milestone-btn" data-date="-3200-01-01T00:00">First Writing (3200 BCE)</button>
+                <button class="milestone-btn" data-json='{"year": 1969, "month": 7, "day": 20, "time": "20:17"}'>Moon Landing (1969)</button>
+                <button class="milestone-btn" data-json='{"year": 1989, "month": 11, "day": 9, "time": "18:53"}'>Berlin Wall Falls (1989)</button>
+                <button class="milestone-btn" data-json='{"year": 2007, "month": 1, "day": 9, "time": "09:00"}'>First iPhone (2007)</button>
+                <button class="milestone-btn" data-json='{"year": 1945, "month": 9, "day": 2, "time": "09:00"}'>End of WWII (1945)</button>
+                <button class="milestone-btn" data-json='{"year": 1, "month": 1, "day": 1, "time": "00:00"}'>Start of CE (1)</button>
+                <button class="milestone-btn" data-json='{"year": -3200, "month": 1, "day": 1, "time": "12:00"}'>First Writing (3200 BCE)</button>
             </div>
         </section>
 

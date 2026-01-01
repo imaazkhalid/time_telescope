@@ -4,7 +4,7 @@ use actix_web::{
     web::{Json, Data},
     App, HttpResponse, HttpServer, Responder,
 };
-use chrono::{DateTime, Utc};
+use chrono::{TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use std::io;
 use sqlx::{Pool, Sqlite};
@@ -13,7 +13,11 @@ mod db;
 
 #[derive(Deserialize)]
 struct CalculationRequest {
-    target_date: DateTime<Utc>,
+    year: i32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    minute: u32,
 }
 
 #[derive(Serialize)]
@@ -37,7 +41,15 @@ async fn calculate_distance(
     pool: Data<Pool<Sqlite>>,
 ) -> impl Responder {
     let now = Utc::now();
-    let target = req.target_date;
+    
+    let target = Utc.with_ymd_and_hms(req.year, req.month, req.day, req.hour, req.minute, 0);
+
+    let target = match target.single() {
+        Some(t) => t,
+        None => return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": "Invalid date components provided."
+        })),
+    };
 
     if target > now {
         return HttpResponse::BadRequest().json(serde_json::json!({
@@ -59,7 +71,6 @@ async fn calculate_distance(
     let miles = light_years * 5_878_625_373_183.6;
 
     // Find nearest landmark
-    // We want the object with the smallest absolute difference in distance
     let landmark = sqlx::query_as::<_, db::CelestialObject>(
         "SELECT * FROM celestial_objects 
          ORDER BY ABS(distance_ly - ?) ASC 

@@ -2,9 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarfield();
 
     const calculateBtn = document.getElementById('calculate-btn');
-    const targetDateInput = document.getElementById('target-date');
-    const resultsArea = document.getElementById('results');
     
+    const inputYear = document.getElementById('input-year');
+    const inputMonth = document.getElementById('input-month');
+    const inputDay = document.getElementById('input-day');
+    const inputTime = document.getElementById('input-time');
+
+    const resultsArea = document.getElementById('results');
     const lyValue = document.getElementById('ly-value');
     const kmValue = document.getElementById('km-value');
     const miValue = document.getElementById('mi-value');
@@ -18,40 +22,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const landmarkDesc = document.getElementById('landmark-desc');
     const landmarkDistVal = document.getElementById('landmark-dist-val');
 
-    // Set default value to 10 years ago
     const now = new Date();
-    const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate(), now.getHours(), now.getMinutes());
-    targetDateInput.value = tenYearsAgo.toISOString().slice(0, 16);
+    inputYear.value = now.getFullYear() - 10;
+    inputMonth.value = now.getMonth() + 1;
+    inputDay.value = now.getDate();
+    inputTime.value = now.toTimeString().slice(0, 5);
 
-    // Milestone buttons
     document.querySelectorAll('.milestone-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            targetDateInput.value = btn.dataset.date;
+            const data = JSON.parse(btn.dataset.json);
+            
+            inputYear.value = data.year;
+            inputMonth.value = data.month;
+            inputDay.value = data.day;
+            inputTime.value = data.time;
+
             calculateBtn.click();
         });
     });
 
     calculateBtn.addEventListener('click', async () => {
-        const targetDate = targetDateInput.value;
-        
-        if (!targetDate) {
-            alert('Please select a target date.');
+        const year = parseInt(inputYear.value);
+        const month = parseInt(inputMonth.value);
+        const day = parseInt(inputDay.value);
+        const timeStr = inputTime.value || "12:00";
+        const [hour, minute] = timeStr.split(':').map(Number);
+
+        if (isNaN(year) || isNaN(month) || isNaN(day)) {
+            alert('Please enter a valid date.');
             return;
         }
-
-        // Convert to ISO string with timezone
-        const isoDate = new Date(targetDate).toISOString();
 
         try {
             calculateBtn.disabled = true;
             calculateBtn.textContent = 'Calculating...';
+
+            const payload = {
+                year: year,
+                month: month,
+                day: day,
+                hour: hour || 0,
+                minute: minute || 0
+            };
 
             const response = await fetch('/api/calculate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ target_date: isoDate }),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -61,16 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Format numbers
             lyValue.textContent = data.light_years.toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 6 });
             kmValue.textContent = Math.round(data.kilometers).toLocaleString();
             miValue.textContent = Math.round(data.miles).toLocaleString();
             voyagerTime.textContent = data.travel_time_voyager;
             
-            displayDate.textContent = new Date(targetDate).toLocaleString();
+            const era = year < 0 ? 'BCE' : 'CE';
+            const absYear = Math.abs(year);
+            const monthName = inputMonth.options[inputMonth.selectedIndex].text;
+            displayDate.textContent = `${monthName} ${day}, ${absYear} ${era} at ${timeStr}`;
+            
             displayLy.textContent = data.light_years.toLocaleString(undefined, { maximumFractionDigits: 4 });
 
-            // Update Landmark
             if (data.nearest_landmark) {
                 landmarkName.textContent = data.nearest_landmark.name;
                 landmarkType.textContent = data.nearest_landmark.object_type;
@@ -131,7 +152,6 @@ function initStarfield() {
             ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
             ctx.fill();
 
-            // Simple parallax/movement
             star.y -= star.velocity;
             if (star.y < 0) {
                 star.y = height;
