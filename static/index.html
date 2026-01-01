@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="stars"></div>
-    <div class="twinkling"></div>
+    <canvas id="starfield"></canvas>
     
     <main class="container">
         <header>
@@ -32,6 +31,16 @@
                     <span class="value" id="ly-value">0.00</span>
                     <span class="unit">Light Years</span>
                 </div>
+
+                <div id="landmark-container" class="landmark-card hidden">
+                    <h4><span class="emoji">🔭</span> Nearest Cosmic Landmark</h4>
+                    <h2 id="landmark-name">...</h2>
+                    <p id="landmark-type" class="landmark-type">...</p>
+                    <p id="landmark-desc">...</p>
+                    <div class="landmark-dist">
+                        Distance: <span id="landmark-dist-val">...</span> ly
+                    </div>
+                </div>
                 
                 <div class="stats-grid">
                     <div class="stat-box">
@@ -41,6 +50,10 @@
                     <div class="stat-box">
                         <span class="stat-label">Miles</span>
                         <span class="stat-value" id="mi-value">0</span>
+                    </div>
+                    <div class="stat-box full-width">
+                        <span class="stat-label">Travel time at Voyager 1 Speed (17 km/s)</span>
+                        <span class="stat-value" id="voyager-time">...</span>
                     </div>
                 </div>
 
@@ -57,6 +70,8 @@
                 <button class="milestone-btn" data-date="1989-11-09T18:53">Berlin Wall Falls (1989)</button>
                 <button class="milestone-btn" data-date="2007-01-09T09:00">First iPhone (2007)</button>
                 <button class="milestone-btn" data-date="1945-09-02T09:00">End of WWII (1945)</button>
+                <button class="milestone-btn" data-date="0001-01-01T00:00">Start of CE (1)</button>
+                <button class="milestone-btn" data-date="-3200-01-01T00:00">First Writing (3200 BCE)</button>
             </div>
         </section>
 

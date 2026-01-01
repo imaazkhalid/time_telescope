@@ -1,12 +1,15 @@
 use actix_files as fs;
 use actix_web::{
     get, middleware, post,
-    web::Json,
+    web::{Json, Data},
     App, HttpResponse, HttpServer, Responder,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::io;
+use sqlx::{Pool, Sqlite};
+
+mod db;
 
 #[derive(Deserialize)]
 struct CalculationRequest {
@@ -19,6 +22,8 @@ struct CalculationResponse {
     kilometers: f64,
     miles: f64,
     years_ago: f64,
+    nearest_landmark: Option<db::CelestialObject>,
+    travel_time_voyager: String,
 }
 
 #[get("/api/health")]
@@ -27,7 +32,10 @@ async fn health_check() -> impl Responder {
 }
 
 #[post("/api/calculate")]
-async fn calculate_distance(req: Json<CalculationRequest>) -> impl Responder {
+async fn calculate_distance(
+    req: Json<CalculationRequest>,
+    pool: Data<Pool<Sqlite>>,
+) -> impl Responder {
     let now = Utc::now();
     let target = req.target_date;
 
@@ -50,11 +58,43 @@ async fn calculate_distance(req: Json<CalculationRequest>) -> impl Responder {
     // 1 light year ≈ 5.879 × 10^12 miles
     let miles = light_years * 5_878_625_373_183.6;
 
+    // Find nearest landmark
+    // We want the object with the smallest absolute difference in distance
+    let landmark = sqlx::query_as::<_, db::CelestialObject>(
+        "SELECT * FROM celestial_objects 
+         ORDER BY ABS(distance_ly - ?) ASC 
+         LIMIT 1"
+    )
+    .bind(light_years)
+    .fetch_optional(pool.get_ref())
+    .await
+    .unwrap_or(None);
+
+    // Calculate travel time at Voyager 1 speed (~17 km/s)
+    // 17 km/s = 61,200 km/h
+    // Hours = km / 61200
+    // Years = Hours / (24 * 365.25)
+    let voyager_speed_kmh = 61_200.0;
+    let hours_voyager = kilometers / voyager_speed_kmh;
+    let years_voyager = hours_voyager / (24.0 * 365.25);
+
+    let travel_time_voyager = if years_voyager < 1.0 {
+        format!("{:.1} days", hours_voyager / 24.0)
+    } else if years_voyager < 1000.0 {
+        format!("{:.1} years", years_voyager)
+    } else if years_voyager < 1_000_000.0 {
+        format!("{:.1} thousand years", years_voyager / 1000.0)
+    } else {
+        format!("{:.1} million years", years_voyager / 1_000_000.0)
+    };
+
     HttpResponse::Ok().json(CalculationResponse {
         light_years,
         kilometers,
         miles,
         years_ago: light_years,
+        nearest_landmark: landmark,
+        travel_time_voyager,
     })
 }
 
@@ -62,17 +102,20 @@ async fn calculate_distance(req: Json<CalculationRequest>) -> impl Responder {
 async fn main() -> io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
+    let pool = db::init_db().await;
+
     log::info!("Starting Time Telescope server at http://127.0.0.1:8080");
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
+            .app_data(Data::new(pool.clone()))
             .wrap(middleware::Logger::default())
             .wrap(
                 middleware::DefaultHeaders::new()
                     .add(("X-Content-Type-Options", "nosniff"))
                     .add(("X-Frame-Options", "DENY"))
                     .add(("X-XSS-Protection", "1; mode=block"))
-                    .add(("Content-Security-Policy", "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self';"))
+                    .add(("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; img-src 'self' data:;"))
             )
             .service(health_check)
             .service(calculate_distance)
